@@ -19,14 +19,5 @@ namespace RecipesAPI.Data
         public RestContext(DbContextOptions<RestContext> options): base(options)
         {
         }
-
-        /*
-         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-         {
-             //var connString = System.Configuration.Get("Data:timesheet_db:ConnectionString");
-             //Configuration.GetConnectionString("DBConnection")
-             //ConfigurationManager.ConnectionStrings["DBConnection"].ConnectionString
-             optionsBuilder.UseSqlServer(_connectionString);//Environment.GetEnvironmentVariable("DBConnection")
-         }*/
     }
 }
