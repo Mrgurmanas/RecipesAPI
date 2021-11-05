@@ -35,7 +35,7 @@ namespace RecipesAPI.Controllers
             var user = await _userManager.FindByNameAsync(registerUserDto.UserName);
             if(user != null)
             {
-                return BadRequest("Request invalid.");
+                return BadRequest("User already exist.");
             }
 
             var newUser = new RestUser

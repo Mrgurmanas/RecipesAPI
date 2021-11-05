@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using RecipesAPI.Data.Dtos.Auth;
 using RecipesAPI.Data.Dtos.Ingredients;
 using RecipesAPI.Data.Dtos.Recipes;
 using RecipesAPI.Data.Dtos.Suppliers;
@@ -25,6 +26,7 @@ namespace RecipesAPI.Data
             CreateMap<Supplier, SupplierDto>();
             CreateMap<CreateSupplierDto, Supplier>();
             CreateMap<UpdateSupplierDto, Supplier>();
-        }
+            CreateMap<RestUser, UserDto>();
+        } 
     }
 }
