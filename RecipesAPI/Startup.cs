@@ -17,6 +17,8 @@ using RecipesAPI.Data.Dtos.Auth;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authorization;
+using RecipesAPI.Auth.Model;
 
 namespace RecipesAPI
 {
@@ -41,8 +43,16 @@ namespace RecipesAPI
                 options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddJwtBearer(options =>
             {
+                options.TokenValidationParameters.ValidAudience = Configuration["JWT:ValidAudience"];
+                options.TokenValidationParameters.ValidIssuer = Configuration["JWT:ValidIssuer"];
                 options.TokenValidationParameters.IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JWT:Secret"]));
             });
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy(PolicyNames.SameUser, policy => policy.Requirements.Add(new SameUserRequirement()));
+            });
+            services.AddSingleton<IAuthorizationHandler, SameUserAuthorizationHandler>();
+
             services.AddDbContext<RestContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DBConnection")));
             services.AddAutoMapper(typeof(Startup));
             services.AddTransient<IRecipesRepository, RecipesRepository>();

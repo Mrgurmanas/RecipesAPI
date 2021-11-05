@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RecipesAPI.Auth.Model;
 using RecipesAPI.Data.Dtos.Recipes;
 using RecipesAPI.Data.Entities;
 using RecipesAPI.Data.Repositories;
@@ -17,11 +19,13 @@ namespace RecipesAPI.Controllers
     {
         private readonly IRecipesRepository _recipesRepository;
         private readonly IMapper _mapper;
+        private readonly IAuthorizationService _authorizationService;
 
-        public RecipesController(IRecipesRepository recipesRepository, IMapper mapper)
+        public RecipesController(IRecipesRepository recipesRepository, IMapper mapper, IAuthorizationService authorizationService)
         {
             _recipesRepository = recipesRepository;
             _mapper = mapper;
+            _authorizationService = authorizationService;
         }
 
         [HttpGet]
@@ -43,6 +47,7 @@ namespace RecipesAPI.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = RestUserRoles.SimpleUser)]
         public async Task<ActionResult<RecipeDto>> Post(CreateRecipeDto recipeDto)
         {
             var recipe = _mapper.Map<Recipe>(recipeDto);
@@ -54,6 +59,7 @@ namespace RecipesAPI.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = RestUserRoles.SimpleUser)]
         public async Task<ActionResult<RecipeDto>> Put(int id, UpdateRecipeDto recipeDto)
         {
             var recipe = await _recipesRepository.GetAsync(id);
@@ -61,6 +67,13 @@ namespace RecipesAPI.Controllers
             {
                 return NotFound($"Recipe with id '{id}' not found.");
             }
+
+            var authorizationResult = await _authorizationService.AuthorizeAsync(User, recipe, PolicyNames.SameUser);
+            if (!authorizationResult.Succeeded)
+            {
+                return Forbid();
+            }
+
             _mapper.Map(recipeDto, recipe);
             await _recipesRepository.PutAsync(recipe);
             return Ok(_mapper.Map<RecipeDto>(recipe));

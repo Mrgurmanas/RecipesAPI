@@ -22,10 +22,14 @@ namespace RecipesAPI.Auth
     {
         private readonly SymmetricSecurityKey _authSigningKey;
         private readonly UserManager<RestUser> _userManager;
+        private readonly string _issuer;
+        private readonly string _audience;
         public TokenManager(IConfiguration configuration, UserManager<RestUser> userManager)
         {
             _authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]));
             _userManager = userManager;
+            _issuer = configuration["JWT:ValidIssuer"];
+            _audience = configuration["JWT:ValidAudience"];
         }
 
         public async Task<string> CreateAccessTokenAsync(RestUser user)
@@ -40,6 +44,8 @@ namespace RecipesAPI.Auth
             authClaims.AddRange(userRoles.Select(userRole => new Claim(ClaimTypes.Role, userRole)));
 
             var accessSecurityToken = new JwtSecurityToken(
+                issuer: _issuer,
+                audience: _audience,
                 expires: DateTime.UtcNow.AddMinutes(30),
                 claims: authClaims,
                 signingCredentials: new SigningCredentials(_authSigningKey, SecurityAlgorithms.HmacSha256)
