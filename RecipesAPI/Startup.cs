@@ -11,6 +11,12 @@ using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
+using RecipesAPI.Auth;
+using Microsoft.AspNetCore.Identity;
+using RecipesAPI.Data.Dtos.Auth;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
 
 namespace RecipesAPI
 {
@@ -27,13 +33,23 @@ namespace RecipesAPI
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            //services.AddDbContext<RestContext>();
-            //Configuration["Logging"];
+            services.AddIdentity<RestUser, IdentityRole>().AddEntityFrameworkStores<RestContext>().AddDefaultTokenProviders();
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters.IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JWT:Secret"]));
+            });
             services.AddDbContext<RestContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DBConnection")));
             services.AddAutoMapper(typeof(Startup));
             services.AddTransient<IRecipesRepository, RecipesRepository>();
             services.AddTransient<IIngredientsRepository, IngredientsRepository>();
             services.AddTransient<ISuppliersRepository, SuppliersRepository>();
+            services.AddTransient<ITokenManager, TokenManager>();
+            services.AddTransient<DatabaseSeeder, DatabaseSeeder>();
             services.AddControllers();
         }
 
@@ -46,6 +62,8 @@ namespace RecipesAPI
             }
 
             app.UseRouting();
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

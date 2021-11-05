@@ -5,10 +5,12 @@ using System.Configuration;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using RecipesAPI.Data.Dtos.Auth;
 
 namespace RecipesAPI.Data
 {
-    public class RestContext : DbContext
+    public class RestContext : IdentityDbContext<RestUser>
     {
         public DbSet<Recipe> Recipes { get; set; }
 
