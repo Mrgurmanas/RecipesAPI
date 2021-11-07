@@ -107,8 +107,6 @@ namespace RecipesAPI.Controllers
                 return NotFound($"Ingredient with id '{ingredientId}' not found.");
             }
 
-            //TODO: ingredient authorization ?
-
             _mapper.Map(ingredientDto, oldIngredient);
 
             await _ingredientsRepository.UpdateAsync(oldIngredient);
@@ -137,8 +135,6 @@ namespace RecipesAPI.Controllers
             {
                 return NotFound($"Ingredient with id '{ingredientId}' not found.");
             }
-
-            // TODO: ingredient authorization ?
 
             await _ingredientsRepository.DeleteAsync(ingredient);
 
