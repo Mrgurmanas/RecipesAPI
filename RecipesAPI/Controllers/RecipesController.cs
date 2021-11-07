@@ -83,12 +83,19 @@ namespace RecipesAPI.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "" + RestUserRoles.SimpleUser + "," + RestUserRoles.Admin + "")]
         public async Task<ActionResult<RecipeDto>> Delete(int id)
         {
             var recipe = await _recipesRepository.GetAsync(id);
             if (recipe == null)
             {
                 return NotFound($"Recipe with id '{id}' not found.");
+            }
+
+            var authorizationResult = await _authorizationService.AuthorizeAsync(User, recipe, PolicyNames.SameUser);
+            if (!authorizationResult.Succeeded)
+            {
+                return Forbid();
             }
 
             await _recipesRepository.DeleteAsync(recipe);
