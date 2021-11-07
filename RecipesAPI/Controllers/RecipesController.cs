@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Security.Claims;
 
 namespace RecipesAPI.Controllers
 {
@@ -51,6 +52,8 @@ namespace RecipesAPI.Controllers
         public async Task<ActionResult<RecipeDto>> Post(CreateRecipeDto recipeDto)
         {
             var recipe = _mapper.Map<Recipe>(recipeDto);
+            recipe.UserId = User.FindFirst(CustomClaims.UserId).Value;
+
             await _recipesRepository.CreateAsync(recipe);
 
             //201
@@ -59,7 +62,7 @@ namespace RecipesAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Roles = RestUserRoles.SimpleUser)]
+        [Authorize(Roles = "" + RestUserRoles.SimpleUser + "," + RestUserRoles.Admin + "")]
         public async Task<ActionResult<RecipeDto>> Put(int id, UpdateRecipeDto recipeDto)
         {
             var recipe = await _recipesRepository.GetAsync(id);

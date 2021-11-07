@@ -46,7 +46,7 @@ namespace RecipesAPI.Controllers
             var createUserResult = await _userManager.CreateAsync(newUser, registerUserDto.Password);
             if (!createUserResult.Succeeded)
             {
-                return BadRequest("Could not create a user.");
+                return BadRequest("Could not create a user." );
             }
 
             await _userManager.AddToRoleAsync(newUser, RestUserRoles.SimpleUser);
@@ -58,9 +58,9 @@ namespace RecipesAPI.Controllers
         public async Task<IActionResult> Login(LoginDto loginDto)
         {
             var user = await _userManager.FindByNameAsync(loginDto.UserName);
-            if (user != null)
+            if (user == null)
             {
-                return BadRequest("User name or password is invalid.");
+                return BadRequest("User name  or password is invalid.");
             }
 
             var isPasswordValid = await _userManager.CheckPasswordAsync(user, loginDto.Password);

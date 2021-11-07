@@ -41,7 +41,9 @@ namespace RecipesAPI.Data
                 var createAdminUserResult = await _userManager.CreateAsync(newAdminUser, "Qwerty123.");
                 if (createAdminUserResult.Succeeded)
                 {
-                    await _userManager.AddToRolesAsync(newAdminUser, RestUserRoles.All);
+                    //IEnumerable<string> adminRoles = new string[] { RestUserRoles.Admin};
+                    await _userManager.AddToRoleAsync(newAdminUser, RestUserRoles.Admin);
+                    //await _userManager.AddToRolesAsync(newAdminUser, RestUserRoles.All);
                 }
             }
         }
